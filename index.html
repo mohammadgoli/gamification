@@ -2,472 +2,425 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>محمد — گیمیفیکیشن</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>محمد — پورتفولیو گیمیفیکیشن</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 <style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
 :root {
-  --bg: #F2EDE6;
-  --bg2: #E5DDD3;
+  --bg:      #F2EDE6;
+  --bg2:     #E8E0D5;
   --surface: #FFFFFF;
-  --text: #1E1710;
-  --text2: #5A4A38;
-  --text3: #9A8878;
-  --border: #D0C4B4;
-  --shadow: rgba(30,23,16,0.13);
-  --cat1: #3D8C6E;
-  --cat2: #6B4FA8;
-  --cat3: #D4722A;
-  --cat4: #2E7AB8;
-  --cat5: #B84040;
-  --outline: #725349;
-  --radius: 20px;
+  --text:    #1E1710;
+  --text2:   #5A4A38;
+  --text3:   #9A8878;
+  --border:  #D0C4B4;
+  --shadow:  rgba(30,23,16,0.14);
+  --cat1:    #3D8C6E;
+  --cat2:    #6B4FA8;
+  --cat3:    #D4722A;
+  --cat4:    #2E7AB8;
+  --cat5:    #B84040;
+  --r:       18px;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141008; --bg2: #1C1610; --surface: #231D14;
-    --text: #F2E8DA; --text2: #B0987E; --text3: #6A5848;
-    --border: #302618; --shadow: rgba(0,0,0,0.4);
+  :root {
+    --bg:#141008; --bg2:#1C1610; --surface:#231D14;
+    --text:#F2E8DA; --text2:#B0987E; --text3:#6A5848;
+    --border:#302618; --shadow:rgba(0,0,0,.45);
   }
 }
-:root[data-theme="dark"] {
-  --bg: #141008; --bg2: #1C1610; --surface: #231D14;
-  --text: #F2E8DA; --text2: #B0987E; --text3: #6A5848;
-  --border: #302618; --shadow: rgba(0,0,0,0.4);
-}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
-body {
-  font-family: 'Vazirmatn', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  direction: rtl;
-  min-height: 100%;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+/* ═══════════════════════════════════════
+   RESET + BASE
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;font-size:16px}
+body{
+  font-family:'Vazirmatn',system-ui,sans-serif;
+  background:var(--bg); color:var(--text);
+  direction:rtl; min-height:100%;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  line-height:1.6;
 }
+button{font-family:inherit;cursor:pointer;border:none;background:none;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
 
-/* ═══════════════════════════════════
+/* ═══════════════════════════════════════
    INTRO OVERLAY
-═══════════════════════════════════ */
-.intro-overlay {
-  position: fixed; inset: 0; z-index: 200;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 32px 24px;
-  text-align: center;
-  transition: opacity 0.5s ease;
+═══════════════════════════════════════ */
+#intro{
+  position:fixed;inset:0;z-index:300;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:clamp(24px,6vw,48px);
+  text-align:center;
+  transition:opacity .5s ease;
 }
-.intro-overlay.hidden { opacity: 0; pointer-events: none; }
-.intro-icon { font-size: 56px; margin-bottom: 22px; line-height: 1; }
-.intro-title {
-  font-family: 'DM Serif Display', serif;
-  font-style: italic;
-  font-size: clamp(22px, 6vw, 34px);
-  color: var(--text);
-  margin-bottom: 16px;
-  line-height: 1.25;
+#intro.out{opacity:0;pointer-events:none}
+.intro-icon{font-size:clamp(48px,12vw,72px);line-height:1;margin-bottom:clamp(16px,4vw,28px)}
+.intro-h{
+  font-family:'DM Serif Display',serif;font-style:italic;
+  font-size:clamp(26px,7vw,42px);
+  color:var(--text);margin-bottom:clamp(14px,3vw,22px);line-height:1.2;
 }
-.intro-body {
-  font-size: 15px;
-  color: var(--text2);
-  line-height: 1.9;
-  max-width: 320px;
-  margin: 0 auto 32px;
+.intro-body{
+  font-size:clamp(15px,3.5vw,17px);
+  color:var(--text2);line-height:2;
+  max-width:360px;margin:0 auto clamp(28px,6vw,44px);
 }
-.intro-body strong { color: var(--text); }
-.intro-start-btn {
-  background: var(--text);
-  color: var(--bg);
-  border: none;
-  border-radius: 16px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 16px 40px;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.12s;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+.intro-body strong{color:var(--text)}
+#intro-btn{
+  background:var(--text);color:var(--bg);
+  border-radius:16px;font-size:clamp(15px,3.5vw,17px);
+  font-weight:700;padding:clamp(14px,3.5vw,18px) clamp(32px,8vw,52px);
+  transition:opacity .15s,transform .12s;
 }
-.intro-start-btn:active { opacity: 0.8; transform: scale(0.97); }
+#intro-btn:active{opacity:.8;transform:scale(.97)}
 
-/* ═══════════════════════════════════
-   PAGE LAYOUT
-═══════════════════════════════════ */
-.page-wrap {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 32px 16px 48px;
+/* ═══════════════════════════════════════
+   PAGE
+═══════════════════════════════════════ */
+.page{
+  max-width:520px;margin:0 auto;
+  padding:clamp(28px,6vw,48px) clamp(16px,4vw,24px) clamp(48px,10vw,72px);
 }
 
-/* ═══════════════════════════════════
-   HEADER
-═══════════════════════════════════ */
-.header { text-align: center; margin-bottom: 28px; }
-.header-eyebrow {
-  font-size: 10px; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--text3);
-  margin-bottom: 10px; font-weight: 500;
+/* ─── Header ─── */
+.hdr{text-align:center;margin-bottom:clamp(24px,5vw,36px)}
+.hdr-eye{
+  font-size:clamp(9px,2vw,11px);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--text3);margin-bottom:10px;
 }
-.header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-style: italic;
-  font-size: clamp(28px, 8vw, 42px);
-  color: var(--text);
-  line-height: 1.1;
-  margin-bottom: 12px;
+.hdr h1{
+  font-family:'DM Serif Display',serif;font-style:italic;
+  font-size:clamp(30px,9vw,48px);color:var(--text);
+  line-height:1.1;margin-bottom:12px;
 }
-.header-sub {
-  font-size: 13px; color: var(--text2);
-  line-height: 1.75; max-width: 300px; margin: 0 auto;
+.hdr-sub{font-size:clamp(13px,3vw,15px);color:var(--text2);max-width:320px;margin:0 auto;line-height:1.8}
+
+/* ─── Progress ─── */
+.prog-wrap{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg2);border-radius:50px;
+  padding:clamp(12px,3vw,16px) clamp(16px,4vw,22px);
+  margin-bottom:clamp(22px,5vw,32px);
+}
+.prog-lbl{font-size:clamp(11px,2.5vw,13px);color:var(--text3);white-space:nowrap;flex-shrink:0}
+.prog-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.prog-fill{
+  height:100%;border-radius:4px;width:0%;
+  background:linear-gradient(90deg,var(--cat1),var(--cat4));
+  transition:width .6s cubic-bezier(.34,1.4,.64,1);
+}
+.prog-num{font-size:clamp(12px,3vw,15px);font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0}
+
+/* ─── Dice section ─── */
+.dice-section{
+  display:flex;flex-direction:column;
+  align-items:center;gap:clamp(16px,4vw,24px);
+  margin-bottom:clamp(28px,6vw,40px);
+}
+.dice-hint{font-size:clamp(12px,3vw,14px);color:var(--text3)}
+
+/* ── CSS 3D DIE ── */
+.die-wrap{
+  --die-size: clamp(90px,22vw,120px);
+  width:var(--die-size);
+  height:var(--die-size);
+  perspective:calc(var(--die-size)*3.5);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.die{
+  width:100%;height:100%;
+  position:relative;transform-style:preserve-3d;
+  transform:rotateX(20deg) rotateY(40deg);
+  /* transition set dynamically via JS */
+}
+.face{
+  position:absolute;width:100%;height:100%;
+  background:#fff;border-radius:clamp(10px,2.5vw,14px);
+  border:2.5px solid #e0d5c8;
+  display:grid;align-items:center;justify-items:center;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:1fr 1fr 1fr;
+  padding:clamp(10px,2.5vw,15px);
+  gap:clamp(4px,1vw,6px);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.07);
+}
+/* face-1=top, face-6=bottom, face-2=front, face-5=back, face-3=right, face-4=left */
+.face-t { transform:rotateX( 90deg) translateZ(calc(var(--die-size)/2)) }
+.face-bo{ transform:rotateX(-90deg) translateZ(calc(var(--die-size)/2)) }
+.face-f { transform:translateZ(calc(var(--die-size)/2)) }
+.face-b { transform:rotateY(180deg) translateZ(calc(var(--die-size)/2)) }
+.face-r { transform:rotateY( 90deg) translateZ(calc(var(--die-size)/2)) }
+.face-l { transform:rotateY(-90deg) translateZ(calc(var(--die-size)/2)) }
+
+.pip{
+  width:clamp(10px,2.5vw,14px);height:clamp(10px,2.5vw,14px);
+  border-radius:50%;background:#2c2018;
+  box-shadow:0 1px 2px rgba(0,0,0,.25);
+}
+.pip.off{visibility:hidden}
+/* grid positions: tl tc tr | ml mc mr | bl bc br */
+.tl{grid-area:1/1}.tc{grid-area:1/2}.tr{grid-area:1/3}
+.ml{grid-area:2/1}.mc{grid-area:2/2}.mr{grid-area:2/3}
+.bl{grid-area:3/1}.bc{grid-area:3/2}.br{grid-area:3/3}
+
+.dice-roll-lbl{
+  font-size:clamp(12px,3vw,14px);color:var(--text3);
+  min-height:20px;transition:opacity .3s;text-align:center;
+}
+.dice-roll-lbl.rolling{opacity:.4}
+
+/* ─── Result card ─── */
+.result-area{min-height:24px;margin-bottom:clamp(22px,5vw,32px)}
+.result-card{
+  width:100%;border-radius:var(--r);overflow:hidden;
+  box-shadow:0 6px 32px var(--shadow);
+  border:1px solid var(--border);
+  opacity:0;transform:translateY(18px) scale(.98);
+  transition:opacity .4s ease,transform .4s ease;
+  display:none;
+}
+.result-card.show{display:block;opacity:1;transform:none}
+
+/* hero */
+.hero{position:relative;height:clamp(140px,36vw,180px);overflow:hidden}
+.hero-img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;
+  background:var(--bg2); /* fallback if img missing */
+}
+.hero-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,
+    transparent 0%,rgba(0,0,0,.1) 30%,
+    rgba(0,0,0,.62) 65%,rgba(0,0,0,.88) 100%);
+}
+.hero-content{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:flex-end;
+  padding:clamp(12px,3vw,18px) clamp(14px,3.5vw,20px);
+}
+.card-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:clamp(10px,2.5vw,12px);font-weight:700;letter-spacing:.06em;
+  padding:3px 11px;border-radius:20px;margin-bottom:6px;
+  color:#fff;background:rgba(255,255,255,.2);
+  backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);
+}
+.hero-title{
+  font-size:clamp(14px,3.5vw,17px);font-weight:700;color:#fff;
+  line-height:1.3;text-align:right;
+  text-shadow:0 1px 8px rgba(0,0,0,.5);max-width:240px;
+}
+/* body */
+.card-body{background:var(--surface);padding:clamp(14px,3.5vw,20px) clamp(16px,4vw,22px) clamp(18px,4.5vw,24px)}
+.card-desc{font-size:clamp(13px,3vw,15px);color:var(--text2);line-height:1.75;margin-bottom:clamp(10px,2.5vw,14px)}
+.card-items{display:flex;flex-direction:column;gap:clamp(6px,1.5vw,9px)}
+.card-item{
+  font-size:clamp(12px,2.8vw,14px);color:var(--text2);
+  padding-right:16px;position:relative;line-height:1.65;
+}
+.card-item::before{content:'›';position:absolute;right:0;color:var(--text3);font-size:16px;line-height:1.4}
+
+/* fact card */
+.result-card.fact{background:var(--text);border-color:transparent}
+.fact-body{background:var(--text);padding:clamp(22px,5.5vw,32px) clamp(20px,5vw,28px) clamp(28px,7vw,40px)}
+.fact-eye{
+  font-size:clamp(9px,2vw,11px);font-weight:700;letter-spacing:.16em;
+  color:rgba(255,255,255,.36);text-transform:uppercase;margin-bottom:clamp(12px,3vw,18px);
+}
+.fact-txt{
+  font-family:'DM Serif Display',serif;font-style:italic;
+  font-size:clamp(18px,5vw,24px);color:#fff;line-height:1.55;
 }
 
-/* ═══════════════════════════════════
-   PROGRESS BAR
-═══════════════════════════════════ */
-.progress-wrap {
-  margin-bottom: 24px;
-  background: var(--bg2);
-  border-radius: 50px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* ─── Legend chips ─── */
+.legend{
+  display:flex;flex-wrap:wrap;gap:clamp(6px,1.5vw,9px);
+  justify-content:center;margin-bottom:clamp(28px,7vw,42px);
 }
-.progress-label {
-  font-size: 11px; color: var(--text3);
-  white-space: nowrap; font-weight: 500;
-  flex-shrink: 0;
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:clamp(12px,3vw,14px);padding:clamp(6px,1.5vw,8px) clamp(12px,3vw,16px);
+  border-radius:50px;border:1.5px solid var(--border);
+  color:var(--text2);background:transparent;
+  transition:background .18s,border-color .18s;
+  font-family:inherit;
 }
-.progress-bar-bg {
-  flex: 1; height: 7px;
-  background: var(--border);
-  border-radius: 4px; overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--cat1), var(--cat4));
-  transition: width 0.6s cubic-bezier(0.34,1.4,0.64,1);
-  width: 0%;
-}
-.progress-count {
-  font-size: 13px; color: var(--text); font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
-}
+.chip:hover{background:var(--bg2)}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chip-ok{font-size:11px;color:#3D8C6E;opacity:0;transition:opacity .25s}
+.chip-ok.on{opacity:1}
 
-/* ═══════════════════════════════════
-   DICE SECTION
-═══════════════════════════════════ */
-.dice-section {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  margin-bottom: 24px;
-}
-.dice-hint {
-  font-size: 12px; color: var(--text3);
-  letter-spacing: 0.03em;
-}
-#diceCanvas {
-  width: 100%;
-  height: 200px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  display: block;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  background: transparent;
-}
-.dice-roll-label {
-  font-size: 11px; color: var(--text3);
-  min-height: 16px; transition: opacity 0.3s;
-}
-.dice-roll-label.rolling { opacity: 0.4; }
+/* ─── About ─── */
+.about{border-top:1px solid var(--border);padding-top:clamp(24px,6vw,36px);text-align:center}
+.about-eye{font-size:clamp(9px,2vw,11px);letter-spacing:.16em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.about-txt{font-size:clamp(13px,3vw,15px);color:var(--text2);line-height:1.85;max-width:360px;margin:0 auto}
 
-/* ═══════════════════════════════════
-   RESULT CARD
-═══════════════════════════════════ */
-.result-area {
-  min-height: 20px;
-  margin-bottom: 24px;
-}
-.result-card {
-  width: 100%;
-  border-radius: var(--radius); overflow: hidden;
-  box-shadow: 0 4px 28px var(--shadow);
-  border: 1px solid var(--border);
-  opacity: 0; transform: translateY(16px) scale(0.98);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  display: none;
-}
-.result-card.visible {
-  display: block; opacity: 1; transform: none;
-}
-
-/* Category card hero */
-.card-hero { position: relative; height: 160px; overflow: hidden; }
-.card-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.card-hero-grad {
-  position: absolute; inset: 0;
-  background: linear-gradient(to right,
-    transparent 0%,
-    rgba(0,0,0,0.15) 30%,
-    rgba(0,0,0,0.6) 65%,
-    rgba(0,0,0,0.85) 100%);
-}
-.card-hero-content {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  justify-content: flex-end;
-  padding: 14px 16px;
-  align-items: flex-end;
-}
-.card-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
-  padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;
-  color: #fff; background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.3);
-}
-.card-hero-title {
-  font-size: 15px; font-weight: 700; color: #fff;
-  line-height: 1.35; text-align: right;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
-  max-width: 220px;
-}
-.card-body-wrap { background: var(--surface); padding: 14px 16px 18px; }
-.card-body-text { font-size: 13px; color: var(--text2); line-height: 1.75; margin-bottom: 10px; }
-.card-items { display: flex; flex-direction: column; gap: 7px; }
-.card-item {
-  font-size: 12.5px; color: var(--text2);
-  padding-right: 14px; position: relative; line-height: 1.65;
-}
-.card-item::before {
-  content: '›'; position: absolute; right: 0;
-  color: var(--text3); font-size: 15px; line-height: 1.4;
-}
-
-/* Fact card */
-.result-card.fact-card {
-  background: var(--text);
-  border-color: transparent;
-}
-.fact-card .card-body-wrap {
-  background: var(--text);
-  padding: 24px 22px 28px;
-}
-.fact-eyebrow {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.38); text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.fact-text {
-  font-family: 'DM Serif Display', serif;
-  font-style: italic;
-  font-size: 21px; color: #fff;
-  line-height: 1.5;
-}
-
-/* ═══════════════════════════════════
-   LEGEND CHIPS
-═══════════════════════════════════ */
-.legend {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  justify-content: center; margin-bottom: 32px;
-}
-.legend-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11.5px; padding: 6px 13px; border-radius: 50px;
-  border: 1.5px solid var(--border); color: var(--text2);
-  background: transparent; font-family: 'Vazirmatn', sans-serif;
-  cursor: pointer; transition: background 0.18s, border-color 0.18s;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-.legend-chip:hover { background: var(--bg2); }
-.legend-chip.seen-chip { border-color: currentColor; opacity: 0.7; }
-.chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.chip-check { font-size: 10px; opacity: 0; transition: opacity 0.25s; color: #3D8C6E; }
-.chip-check.seen { opacity: 1; }
-
-/* ═══════════════════════════════════
-   ABOUT
-═══════════════════════════════════ */
-.about {
-  border-top: 1px solid var(--border);
-  padding-top: 28px; text-align: center;
-}
-.about-eyebrow {
-  font-size: 10px; letter-spacing: 0.15em; color: var(--text3);
-  text-transform: uppercase; margin-bottom: 10px;
-}
-.about-text {
-  font-size: 13px; color: var(--text2);
-  line-height: 1.85; max-width: 340px; margin: 0 auto;
-}
-
-/* ═══════════════════════════════════
+/* ═══════════════════════════════════════
    MODAL
-═══════════════════════════════════ */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(5px);
-  z-index: 100;
-  display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.28s;
+═══════════════════════════════════════ */
+.modal-ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  backdrop-filter:blur(6px);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .28s;
 }
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--surface);
-  border-radius: 24px 24px 0 0;
-  padding: 24px 20px 52px;
-  width: 100%; max-width: 500px;
-  transform: translateY(40px);
-  transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
-  direction: rtl;
-  max-height: 92vh; overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border-radius:24px 24px 0 0;
+  padding:clamp(20px,5vw,30px) clamp(18px,4.5vw,26px) clamp(40px,10vw,60px);
+  width:100%;max-width:520px;
+  transform:translateY(40px);
+  transition:transform .35s cubic-bezier(.34,1.2,.64,1);
+  max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
-.modal-overlay.open .modal { transform: translateY(0); }
-.modal-handle {
-  width: 40px; height: 4px;
-  background: var(--border); border-radius: 2px;
-  margin: 0 auto 24px;
+.modal-ov.open .modal{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto clamp(20px,5vw,28px)}
+.modal-em{font-size:clamp(32px,8vw,44px);text-align:center;margin-bottom:clamp(10px,2.5vw,14px)}
+.modal-ttl{font-size:clamp(16px,4vw,20px);font-weight:700;color:var(--text);text-align:center;margin-bottom:8px;line-height:1.4}
+.modal-sub{font-size:clamp(13px,3vw,15px);color:var(--text2);text-align:center;line-height:1.75;margin-bottom:clamp(20px,5vw,28px)}
+.h-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,2vw,12px);margin-bottom:clamp(16px,4vw,22px)}
+.h-opt{
+  background:var(--bg);border:2px solid var(--border);
+  border-radius:clamp(12px,3vw,16px);
+  padding:clamp(12px,3vw,16px) clamp(8px,2vw,12px);
+  text-align:center;transition:border-color .18s,background .18s,transform .12s;
+  font-family:inherit;
 }
-.modal-emoji { font-size: 38px; text-align: center; margin-bottom: 12px; }
-.modal-title {
-  font-size: 18px; font-weight: 700; color: var(--text);
-  margin-bottom: 8px; text-align: center; line-height: 1.4;
+.h-opt:active{transform:scale(.95)}
+.h-opt.sel{border-color:var(--text);background:var(--bg2)}
+.h-opt.ok{border-color:#3D8C6E!important;background:rgba(61,140,110,.12)!important}
+.h-opt.no{border-color:#B84040!important;background:rgba(184,64,64,.08)!important;opacity:.45}
+.h-icon{font-size:clamp(20px,5vw,26px);margin-bottom:6px}
+.h-lbl{font-size:clamp(12px,3vw,15px);font-weight:600;color:var(--text)}
+.h-en{font-size:clamp(9px,2vw,11px);color:var(--text3);margin-top:2px}
+.modal-btn{
+  width:100%;background:var(--text);color:var(--bg);
+  border-radius:clamp(12px,3vw,16px);
+  font-size:clamp(14px,3.5vw,16px);font-weight:700;
+  padding:clamp(14px,3.5vw,18px);
+  transition:opacity .15s;font-family:inherit;
 }
-.modal-sub {
-  font-size: 13px; color: var(--text2);
-  text-align: center; line-height: 1.7;
-  margin-bottom: 24px;
+.modal-btn:disabled{opacity:.22;cursor:not-allowed}
+.modal-btn:not(:disabled):active{opacity:.8}
+.modal-fb{text-align:center;margin-top:clamp(10px,2.5vw,14px);font-size:clamp(13px,3vw,15px);color:var(--text2);line-height:1.65;min-height:22px}
+.modal-fb.err{color:#B84040;font-weight:600}
+.modal-fb.ok{color:#3D8C6E;font-weight:600}
+.prize{text-align:center;margin-top:clamp(16px,4vw,22px);padding:clamp(16px,4vw,22px);background:var(--bg2);border-radius:clamp(14px,3.5vw,18px);display:none}
+.prize.show{display:block;animation:fadeUp .4s ease}
+.prize-em{font-size:clamp(34px,8vw,44px);margin-bottom:10px}
+.prize-ttl{font-size:clamp(15px,4vw,18px);font-weight:700;color:var(--text);margin-bottom:6px}
+.prize-txt{font-size:clamp(12px,3vw,14px);color:var(--text2);margin-bottom:clamp(12px,3vw,16px);line-height:1.75}
+.prize-link{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--text);color:var(--bg);
+  padding:clamp(11px,2.8vw,14px) clamp(20px,5vw,28px);
+  border-radius:clamp(11px,2.8vw,14px);
+  font-size:clamp(13px,3vw,15px);font-weight:700;
+  text-decoration:none;transition:opacity .15s;
 }
-.holland-options {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 10px; margin-bottom: 20px;
-}
-.h-option {
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 14px; padding: 14px 10px;
-  text-align: center; cursor: pointer;
-  transition: border-color 0.18s, background 0.18s, transform 0.12s;
-  font-family: 'Vazirmatn', sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-.h-option:active { transform: scale(0.96); }
-.h-option.selected { border-color: var(--text); background: var(--bg2); }
-.h-option.correct { border-color: #3D8C6E !important; background: rgba(61,140,110,0.12) !important; }
-.h-option.wrong { border-color: #B84040 !important; background: rgba(184,64,64,0.08) !important; opacity: 0.5; }
-.h-option-icon { font-size: 22px; margin-bottom: 6px; }
-.h-option-label { font-size: 13px; font-weight: 600; color: var(--text); }
-.h-option-en { font-size: 10px; color: var(--text3); margin-top: 2px; }
-.modal-submit {
-  width: 100%; background: var(--text); color: var(--bg);
-  border: none; border-radius: 14px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 15px; font-weight: 700; padding: 15px;
-  cursor: pointer; transition: opacity 0.15s;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-.modal-submit:disabled { opacity: 0.25; cursor: not-allowed; }
-.modal-submit:not(:disabled):active { opacity: 0.8; }
-.modal-feedback {
-  text-align: center; margin-top: 14px;
-  font-size: 13.5px; color: var(--text2);
-  line-height: 1.6; min-height: 20px;
-}
-.modal-feedback.wrong-msg { color: #B84040; font-weight: 600; }
-.modal-feedback.right-msg { color: #3D8C6E; font-weight: 600; }
-.prize-wrap {
-  text-align: center; margin-top: 20px;
-  padding: 20px 16px; background: var(--bg2);
-  border-radius: 18px; display: none;
-}
-.prize-wrap.show { display: block; animation: fadeUp 0.4s ease; }
-.prize-emoji { font-size: 38px; margin-bottom: 9px; }
-.prize-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-.prize-sub { font-size: 12.5px; color: var(--text2); margin-bottom: 15px; line-height: 1.7; }
-.prize-link {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--text); color: var(--bg);
-  padding: 12px 24px; border-radius: 13px;
-  font-size: 14px; font-weight: 700;
-  text-decoration: none; transition: opacity 0.15s;
-}
-.prize-link:active { opacity: 0.8; }
-.tries-badge {
-  display: block; margin-top: 10px;
-  font-size: 11.5px; color: var(--text3);
-}
+.prize-link:active{opacity:.8}
+.tries{display:block;margin-top:10px;font-size:clamp(11px,2.5vw,13px);color:var(--text3)}
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .result-card, .modal, .modal-overlay,
-  .progress-bar-fill { transition: none !important; }
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+  .result-card,.modal,.modal-ov,.prog-fill,.die{transition:none!important}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ INTRO OVERLAY ══ -->
-<div class="intro-overlay" id="introOverlay">
+<!-- ══ INTRO ══ -->
+<div id="intro">
   <div class="intro-icon">🎲</div>
-  <div class="intro-title">خوش اومدی به پورتفولیوی من</div>
+  <div class="intro-h">به پورتفولیوی من خوش آمدید</div>
   <p class="intro-body">
-    اینجا یه <strong>بازی کوچیک</strong> داریم.<br>
-    تاس بنداز — هر عدد یه بخش از کارهامه.<br>
-    تا همه ۵ بخش رو ببینی، یه سوال دارم باهات.<br>
-    اگه درست جواب دادی، <strong>یه جایزه سورپرایز</strong> داری 🎁
+    اینجا یه <strong>بازی کوچیک</strong> داریم<br>
+    باید برای دیدن نمونه کارها تاس بندازید<br>
+    بعد از اینکه همه ۵ بخش مشاهده شدن<br>
+    یه سوال جایزه‌دار دارم!<br>
+    اگه درست جواب بدید یه <strong>سورپرایز</strong> داره 😮
   </p>
-  <button class="intro-start-btn" id="introStartBtn">بریم ←</button>
+  <button id="intro-btn">بریم ←</button>
 </div>
 
-<!-- ══ MAIN PAGE ══ -->
-<div class="page-wrap">
+<!-- ══ PAGE ══ -->
+<div class="page">
 
-  <div class="header">
-    <div class="header-eyebrow">Portfolio</div>
+  <div class="hdr">
+    <div class="hdr-eye">Portfolio</div>
     <h1>Gamification Works</h1>
-    <p class="header-sub">بیشتر این کارها رو بدون اینکه بدونم دارم گیمیفای می‌کنم، انجام دادم</p>
+    <p class="hdr-sub">بیشتر این کارها رو بدون اینکه بدونم دارم گیمیفای می‌کنم، انجام دادم</p>
   </div>
 
   <!-- Progress -->
-  <div class="progress-wrap">
-    <span class="progress-label">پیشرفت</span>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressFill"></div>
-    </div>
-    <span class="progress-count" id="progressCount">۰ / ۵</span>
+  <div class="prog-wrap">
+    <span class="prog-lbl">پیشرفت</span>
+    <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+    <span class="prog-num" id="pNum">۰ / ۵</span>
   </div>
 
   <!-- Dice -->
   <div class="dice-section">
-    <div class="dice-hint">روی تاس کلیک کن یا بکشش</div>
-    <canvas id="diceCanvas" aria-label="تاس سه‌بعدی — کلیک کن برای پرتاب"></canvas>
-    <div class="dice-roll-label" id="rollLabel">منتظر پرتابم 🎲</div>
+    <div class="dice-hint">روی تاس کلیک کن</div>
+
+    <div class="die-wrap" id="dieWrap" role="button" aria-label="پرتاب تاس" tabindex="0">
+      <div class="die" id="die">
+        <!-- TOP = 1 -->
+        <div class="face face-t">
+          <div class="pip off tl"></div><div class="pip off tc"></div><div class="pip off tr"></div>
+          <div class="pip off ml"></div><div class="pip mc"></div><div class="pip off mr"></div>
+          <div class="pip off bl"></div><div class="pip off bc"></div><div class="pip off br"></div>
+        </div>
+        <!-- BOTTOM = 6 -->
+        <div class="face face-bo">
+          <div class="pip tl"></div><div class="pip off tc"></div><div class="pip tr"></div>
+          <div class="pip ml"></div><div class="pip off mc"></div><div class="pip mr"></div>
+          <div class="pip bl"></div><div class="pip off bc"></div><div class="pip br"></div>
+        </div>
+        <!-- FRONT = 2 -->
+        <div class="face face-f">
+          <div class="pip off tl"></div><div class="pip off tc"></div><div class="pip tr"></div>
+          <div class="pip off ml"></div><div class="pip off mc"></div><div class="pip off mr"></div>
+          <div class="pip bl"></div><div class="pip off bc"></div><div class="pip off br"></div>
+        </div>
+        <!-- BACK = 5 -->
+        <div class="face face-b">
+          <div class="pip tl"></div><div class="pip off tc"></div><div class="pip tr"></div>
+          <div class="pip off ml"></div><div class="pip mc"></div><div class="pip off mr"></div>
+          <div class="pip bl"></div><div class="pip off bc"></div><div class="pip br"></div>
+        </div>
+        <!-- RIGHT = 3 -->
+        <div class="face face-r">
+          <div class="pip off tl"></div><div class="pip off tc"></div><div class="pip tr"></div>
+          <div class="pip off ml"></div><div class="pip mc"></div><div class="pip off mr"></div>
+          <div class="pip bl"></div><div class="pip off bc"></div><div class="pip off br"></div>
+        </div>
+        <!-- LEFT = 4 -->
+        <div class="face face-l">
+          <div class="pip tl"></div><div class="pip off tc"></div><div class="pip tr"></div>
+          <div class="pip off ml"></div><div class="pip off mc"></div><div class="pip off mr"></div>
+          <div class="pip bl"></div><div class="pip off bc"></div><div class="pip br"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dice-roll-lbl" id="rollLbl">منتظر پرتابم 🎲</div>
   </div>
 
-  <!-- Result card area -->
+  <!-- Result -->
   <div class="result-area">
-    <div class="result-card" id="resultCard"></div>
+    <div class="result-card" id="card"></div>
   </div>
 
   <!-- Legend -->
@@ -475,28 +428,27 @@ body {
 
   <!-- About -->
   <div class="about">
-    <div class="about-eyebrow">درباره</div>
-    <p class="about-text">پژوهشگر کاربر و طراح تجربه با پس‌زمینه ۱۲ ساله برنامه‌نویسی و تخصص در روان‌درمانی. علاقه‌ام به رفتار انسانی باعث شده همیشه به دنبال راهی باشم که یادگیری و تغییر رو لذت‌بخش‌تر کنم.</p>
+    <div class="about-eye">درباره</div>
+    <p class="about-txt">پژوهشگر کاربر و طراح تجربه با پس‌زمینه ۱۲ ساله برنامه‌نویسی و تخصص در روان‌درمانی. علاقه‌ام به رفتار انسانی باعث شده همیشه به دنبال راهی باشم که یادگیری و تغییر رو لذت‌بخش‌تر کنم.</p>
   </div>
+</div>
 
-</div><!-- /page-wrap -->
-
-<!-- ══ HOLLAND MODAL ══ -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- ══ MODAL ══ -->
+<div class="modal-ov" id="mOv">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-emoji">🧠</div>
-    <div class="modal-title">همه ۵ بخش رو دیدی!</div>
+    <div class="modal-em">🧠</div>
+    <div class="modal-ttl">همه ۵ بخش رو دیدی!</div>
     <p class="modal-sub">حالا یه سوال دارم 🎁<br>شخصیت من بر اساس تئوری هالند چیه؟<br>از ۶ تیپ، <strong>۳ تا</strong> که فکر می‌کنی مربوط به منه انتخاب کن</p>
-    <div class="holland-options" id="hollandOptions"></div>
-    <button class="modal-submit" id="modalSubmit" disabled>ثبت جواب</button>
-    <div class="modal-feedback" id="modalFeedback"></div>
-    <div class="prize-wrap" id="prizeWrap">
-      <div class="prize-emoji">🎁</div>
-      <div class="prize-title">آفرین! درست بود</div>
-      <p class="prize-sub">هنری + جستجوگر + اجتماعی — دقیقاً همونیه که هستم<br>یه هدیه برات گذاشتم</p>
+    <div class="h-grid" id="hGrid"></div>
+    <button class="modal-btn" id="mBtn" disabled>ثبت جواب</button>
+    <div class="modal-fb" id="mFb"></div>
+    <div class="prize" id="prize">
+      <div class="prize-em">🎁</div>
+      <div class="prize-ttl">آفرین! درست بود</div>
+      <p class="prize-txt">هنری + جستجوگر + تهوری — دقیقاً همونیه که هستم<br>یه هدیه برات گذاشتم</p>
       <a href="https://taaghche.com" target="_blank" rel="noopener" class="prize-link">دریافت هدیه ←</a>
-      <span class="tries-badge" id="triesBadge"></span>
+      <span class="tries" id="tries"></span>
     </div>
   </div>
 </div>
@@ -505,12 +457,11 @@ body {
 // ══════════════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════════════
-const CATEGORIES = [
+const CATS = [
   {
-    id:'workshop', label:'کارگاه / ایونت', color:'#3D8C6E', icon:'🎲',
+    id:'workshop', label:'کارگاه / ایونت', color:'#3D8C6E', icon:'🎲', img:'images/1.jpg',
     title:'گیمیفیکیشن کارگاه و ایونت',
     body:'بازی‌های گروهی برای تقویت روابط خانوادگی و توسعه مهارت‌های اجتماعی:',
-    imgColors:['#2D6E54','#1A4A38','#3D8C6E'],
     items:[
       'بازی ۳ مرحله‌ای پدر-پسر و مادر-دختر کارکنان فولاد بر مبنای شفقت‌درمانی — شامل نامه‌نگاری با الگوی خاص',
       'تغییر قانون بردگیم‌ها: «همه می‌برن یا همه می‌بازن» — تقویت همکاری به جای رقابت',
@@ -518,30 +469,27 @@ const CATEGORIES = [
     ]
   },
   {
-    id:'personality', label:'شخصیت‌شناسی', color:'#6B4FA8', icon:'🪞',
+    id:'personality', label:'شخصیت‌شناسی', color:'#6B4FA8', icon:'🪞', img:'images/2.jpg',
     title:'گیمیفیکیشن شخصیت‌شناسی',
     body:'ابزارهای سنجش شخصیت که احساس بازی دارن، نه آزمون:',
-    imgColors:['#4A2E88','#2A1060','#7B5EC8'],
     items:[
       'بازطراحی SWAP با مکانیک سوایپ کارت — الگو از تیندر، برای پاسخ‌دهی ناهشیار',
       'طرح آینه: پیام ناشناس + امتیازدهی — شناخت شخصیت از طریق بازتاب دیگران',
     ]
   },
   {
-    id:'sales', label:'فروش / ثبت‌نام', color:'#D4722A', icon:'📬',
+    id:'sales', label:'فروش / ثبت‌نام', color:'#D4722A', icon:'📬', img:'images/3.jpg',
     title:'گیمیفیکیشن فروش و ثبت‌نام',
     body:'وقتی تبلیغ مستقیم نمی‌خواستم، بازی جاش رو گرفت:',
-    imgColors:['#A84E10','#7A3000','#D4822A'],
     items:[
       'دعوت‌نامه محدود گروه درمانی — فرم چاپی، هر نفر فقط ۱-۲ نفر معرفی می‌کرد',
       'تکمیل چرخه زیزا — کاربر «محصول واقعی» تولید می‌کرد، جدول زمانی تیک می‌زد',
     ]
   },
   {
-    id:'edu', label:'آموزش آکادمیک', color:'#2E7AB8', icon:'🏆',
+    id:'edu', label:'آموزش آکادمیک', color:'#2E7AB8', icon:'🏆', img:'images/4.jpg',
     title:'گیمیفیکیشن آموزش آکادمیک',
     body:'کلاس برنامه‌نویسی که بیشتر شبیه مسابقه بود:',
-    imgColors:['#1A5A98','#0E3A70','#3E8AC8'],
     items:[
       'نرم‌افزار تحت‌شبکه با اسکوربورد زنده — مسابقه تایپ و برنامه‌نویسی روی کوئرا',
       'اپ سوال-جواب ۳ ثانیه‌ای سر کلاس — اسکوربورد لحظه‌ای برای همه',
@@ -549,10 +497,9 @@ const CATEGORIES = [
     ]
   },
   {
-    id:'skill', label:'توسعه مهارت سریالی', color:'#B84040', icon:'🗺️',
+    id:'skill', label:'توسعه مهارت سریالی', color:'#B84040', icon:'🗺️', img:'images/5.jpg',
     title:'گیمیفیکیشن توسعه مهارت — سریالی',
     body:'بازی سرزمینی برای کارآفرینی — چند جلسه‌ای و تیمی:',
-    imgColors:['#902020','#600800','#C85050'],
     items:[
       'هر تیم تسک انجام می‌داد ← سکه می‌گرفت ← قلمرو بزرگ‌تر می‌شد',
       'برنده: قلمرو بزرگ‌تر + سکه بیشتر — مذاکره، حل مسئله، کارتیمی',
@@ -575,480 +522,287 @@ const FACTS = [
 ];
 
 const HOLLAND = [
-  {id:'R', label:'واقع‌گرا',  en:'Realistic',     icon:'🔧'},
-  {id:'I', label:'جستجوگر',  en:'Investigative', icon:'🔬'},
-  {id:'A', label:'هنری',      en:'Artistic',      icon:'🎨'},
-  {id:'S', label:'اجتماعی',  en:'Social',        icon:'🤝'},
-  {id:'E', label:'کارآفرین', en:'Enterprising',  icon:'🚀'},
-  {id:'C', label:'قراردادی', en:'Conventional',  icon:'📋'},
+  {id:'R',label:'واقع‌گرا', en:'Realistic',     icon:'🔧'},
+  {id:'I',label:'جستجوگر', en:'Investigative', icon:'🔬'},
+  {id:'A',label:'هنری',     en:'Artistic',      icon:'🎨'},
+  {id:'S',label:'اجتماعی', en:'Social',        icon:'🤝'},
+  {id:'E',label:'تهوری',en:'Enterprising',  icon:'🚀'},
+  {id:'C',label:'قراردادی',en:'Conventional',  icon:'📋'},
 ];
-const CORRECT_IDS = new Set(['I','A','S']);
+const CORRECT = new Set(['I','A','E']);
 
 // ══════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════
-let seenCats     = new Set();
-let quizDone     = false;
-let quizTries    = 0;
-let selectedH    = new Set();
-let lastFact     = -1;
-let usedNums     = new Set(); // 2–6 used once each
+let seen     = new Set();   // cat ids seen
+let used     = new Set();   // die values 2-6 used
+let lastFact = -1;
+let rolling  = false;
+let quizDone = false;
+let tries    = 0;
+let selH     = new Set();
 
 // ══════════════════════════════════════════════════════
-// FARSI NUMBERS
+// UTILS
 // ══════════════════════════════════════════════════════
-const toF = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const toF = n => String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
 
 // ══════════════════════════════════════════════════════
 // INTRO
 // ══════════════════════════════════════════════════════
-document.getElementById('introStartBtn').addEventListener('click', () => {
-  const ov = document.getElementById('introOverlay');
-  ov.classList.add('hidden');
-  setTimeout(() => { ov.style.display = 'none'; }, 600);
+document.getElementById('intro-btn').addEventListener('click', () => {
+  const el = document.getElementById('intro');
+  el.classList.add('out');
+  setTimeout(() => el.style.display='none', 550);
 });
 
 // ══════════════════════════════════════════════════════
-// THREE.JS + CANNON.JS DICE
+// CSS 3D DICE
 // ══════════════════════════════════════════════════════
-
-/* ─── Renderer ─── */
-const canvas = document.getElementById('diceCanvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setClearColor(0x000000, 0);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = false;
-
-/* ─── Scene + Camera ─── */
-const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(42, 2, 0.1, 100);
-camera.position.set(0, 5.5, 9);
-camera.lookAt(0, 0, 0);
-
-/* ─── Lights ─── */
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const sun = new THREE.DirectionalLight(0xffffff, 0.9);
-sun.position.set(5, 10, 7);
-scene.add(sun);
-const rim = new THREE.DirectionalLight(0xffe0b0, 0.35);
-rim.position.set(-5, 4, -5);
-scene.add(rim);
-
-/* ─── Physics ─── */
-const world = new CANNON.World();
-world.gravity.set(0, -28, 0);
-world.broadphase = new CANNON.NaiveBroadphase();
-world.solver.iterations = 16;
-
-const matGround = new CANNON.Material('ground');
-const matDice   = new CANNON.Material('dice');
-world.addContactMaterial(new CANNON.ContactMaterial(matGround, matDice, {
-  friction: 0.4, restitution: 0.38
-}));
-
-/* ground plane */
-const ground = new CANNON.Body({ mass: 0, material: matGround });
-ground.addShape(new CANNON.Plane());
-ground.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
-world.addBody(ground);
-
-/* ─── Dice textures ───
-   CRITICAL mapping:
-   Three.js BoxGeometry material slots:
-     slot 0 = +X face (right)
-     slot 1 = -X face (left)
-     slot 2 = +Y face (top)
-     slot 3 = -Y face (bottom)
-     slot 4 = +Z face (front)
-     slot 5 = -Z face (back)
-
-   We encode the die value directly in a `userData` on each material
-   so getDiceValue() reads it without any face-normal math.
-   Layout (standard die, opposite faces sum to 7):
-     top=1, bottom=6   → slot2=1, slot3=6
-     front=2, back=5   → slot4=2, slot5=5
-     right=3, left=4   → slot0=3, slot1=4
-*/
-const FACE_VALUES = [3, 4, 1, 6, 2, 5]; // slots 0-5
-
-const DICE_COLORS = ['#E05A47','#EAA14D','#4D9BEA','#5FB376','#D869A8','#9B51E0'];
-const DOT_CLR = '#FFFFFF';
-
-function makeDotTexture(value, bgHex) {
-  const S = 256, cv = document.createElement('canvas');
-  cv.width = cv.height = S;
-  const ctx = cv.getContext('2d');
-  // fill
-  ctx.fillStyle = bgHex; ctx.fillRect(0,0,S,S);
-  // rounded corners illusion — just draw slightly inset
-  ctx.fillStyle = DOT_CLR;
-  const R = S/10, c = S/2, q1 = S/4, q3 = S*3/4;
-  const dot = (x,y) => { ctx.beginPath(); ctx.arc(x,y,R,0,Math.PI*2); ctx.fill(); };
-  switch(value) {
-    case 1: dot(c,c); break;
-    case 2: dot(q1,q1); dot(q3,q3); break;
-    case 3: dot(q1,q1); dot(c,c); dot(q3,q3); break;
-    case 4: dot(q1,q1); dot(q3,q1); dot(q1,q3); dot(q3,q3); break;
-    case 5: dot(q1,q1); dot(q3,q1); dot(c,c); dot(q1,q3); dot(q3,q3); break;
-    case 6: dot(q1,q1); dot(q3,q1); dot(q1,c); dot(q3,c); dot(q1,q3); dot(q3,q3); break;
-  }
-  const tex = new THREE.CanvasTexture(cv);
-  tex.userData = { faceValue: value }; // ← KEY: store value in texture
-  return tex;
-}
-
-/* ─── Die mesh + body ─── */
-let diceMesh, diceBody;
-
-function createDie() {
-  if (diceMesh) { scene.remove(diceMesh); diceMesh.geometry.dispose(); }
-  if (diceBody) world.removeBody(diceBody);
-
-  const color = DICE_COLORS[Math.floor(Math.random() * DICE_COLORS.length)];
-  const S = 2.0;
-  const geo = new THREE.BoxGeometry(S, S, S);
-
-  // Build materials in slot order, each with faceValue embedded in texture userData
-  const mats = FACE_VALUES.map(val =>
-    new THREE.MeshLambertMaterial({ map: makeDotTexture(val, color) })
-  );
-
-  diceMesh = new THREE.Mesh(geo, mats);
-  scene.add(diceMesh);
-
-  // Subtle outline
-  const outM = new THREE.MeshBasicMaterial({ color: 0x725349, side: THREE.BackSide });
-  diceMesh.add(new THREE.Mesh(new THREE.BoxGeometry(S*1.06, S*1.06, S*1.06), outM));
-
-  diceBody = new CANNON.Body({
-    mass: 1, material: matDice, linearDamping: 0.28, angularDamping: 0.38,
-    shape: new CANNON.Box(new CANNON.Vec3(S/2, S/2, S/2)),
-  });
-  diceBody.position.set(0, 2, 0);
-  world.addBody(diceBody);
-}
-createDie();
-
-/* ─── Resize ─── */
-function resizeCanvas() {
-  const r = canvas.getBoundingClientRect();
-  renderer.setSize(r.width, r.height, false);
-  camera.aspect = r.width / r.height;
-  camera.updateProjectionMatrix();
-}
-resizeCanvas();
-new ResizeObserver(resizeCanvas).observe(canvas);
-
-/* ─── Read top-face value from material's texture userData ─── */
+const die = document.getElementById('die');
+// Each show-N class was calibrated so face N faces up
+// Mapping: die value → CSS class
+// Base rotations so that face value N ends up on top.
+// HTML face layout:
+//   face-t  (top)    = 1   → no rotation needed
+//   face-bo (bottom) = 6   → rotateX(180)
+//   face-f  (front)  = 2   → rotateX(-90) brings front to top
+//   face-b  (back)   = 5   → rotateX(90)  brings back to top
+//   face-r  (right)  = 3   → rotateZ(-90) brings right to top
+//   face-l  (left)   = 4   → rotateZ(90)  brings left to top
 /*
-  For each of the 6 face normals in local space, rotate it by the die's quaternion
-  to get world-space direction, then dot with UP (0,1,0).
-  The face with the highest dot product is the top face.
-  Then we look up which material slot corresponds to that face.
+  BASE_ROT: چرخش die تا face-N رو به جلو (front-facing) باشه.
+  face-f (face-2) = front (translateZ بدون rotate).
+  inverse چرخش هر face = چرخش die برای آوردن اون face به جلو:
+    face-1: rotateX(90)  → die rx=-90, ry=0
+    face-2: هیچ          → die rx=0,   ry=0
+    face-3: rotateY(90)  → die rx=0,   ry=-90
+    face-4: rotateY(-90) → die rx=0,   ry=90
+    face-5: rotateY(180) → die rx=0,   ry=180
+    face-6: rotateX(-90) → die rx=90,  ry=0
 */
-const LOCAL_NORMALS = [
-  new THREE.Vector3( 1, 0, 0),  // slot 0 (+X)
-  new THREE.Vector3(-1, 0, 0),  // slot 1 (-X)
-  new THREE.Vector3( 0, 1, 0),  // slot 2 (+Y)
-  new THREE.Vector3( 0,-1, 0),  // slot 3 (-Y)
-  new THREE.Vector3( 0, 0, 1),  // slot 4 (+Z)
-  new THREE.Vector3( 0, 0,-1),  // slot 5 (-Z)
-];
-const UP = new THREE.Vector3(0, 1, 0);
+const BASE_ROT = {
+  1: { rx: -90, ry:   0 },
+  2: { rx:   0, ry:   0 },
+  3: { rx:   0, ry: -90 },
+  4: { rx:   0, ry:  90 },
+  5: { rx:   0, ry: 180 },
+  6: { rx:  90, ry:   0 },
+};
 
-function getTopFaceValue() {
-  let best = -Infinity, bestSlot = 2;
-  LOCAL_NORMALS.forEach((n, slot) => {
-    const worldN = n.clone().applyQuaternion(diceMesh.quaternion);
-    const d = worldN.dot(UP);
-    if (d > best) { best = d; bestSlot = slot; }
-  });
-  // Read value from the material's texture userData
-  return diceMesh.material[bestSlot].map.userData.faceValue;
-}
+let rollCount = 0;
+let curRx = -20, curRy = 30; // وضعیت فعلی چرخش
 
-/* ─── Roll state ─── */
-let isRolling = false;
-let checkTimer = null;
-let dragStartY = 0;
+function roll() {
+  if (rolling) return;
+  rolling = true;
+  rollCount++;
 
-function throwDice() {
-  if (isRolling) return;
-  isRolling = true;
-
-  const lbl = document.getElementById('rollLabel');
+  const lbl = document.getElementById('rollLbl');
   lbl.textContent = '🎲 در حال پرتاب...';
   lbl.classList.add('rolling');
 
-  diceBody.position.set((Math.random()-.5)*1.2, 5.5, (Math.random()-.5)*1.2);
-  diceBody.velocity.set(
-    (Math.random()-.5)*7,
-    -9 - Math.random()*4,
-    (Math.random()-.5)*7
-  );
-  diceBody.angularVelocity.set(
-    (Math.random()-.5)*28,
-    (Math.random()-.5)*28,
-    (Math.random()-.5)*28
-  );
-  diceBody.wakeUp();
+  const raw   = Math.ceil(Math.random() * 6);
+  const final = resolveRoll(raw);
+  const base  = BASE_ROT[final];
 
-  if (checkTimer) clearTimeout(checkTimer);
-  // After minimum roll time, start checking for rest
-  checkTimer = setTimeout(checkForRest, 1600);
-}
+  /*
+    spin فقط روی Y (مضرب 360) — تضمین می‌کنه face درست جلو بیاد.
+    X مستقیم به مقدار هدف می‌ره بدون spin اضافه.
+  */
+  const ySpins = (4 + Math.floor(Math.random() * 3)) * 360 * (Math.random() < .5 ? 1 : -1);
+  const targetRx = base.rx;
+  const targetRy = base.ry + ySpins;
 
-function checkForRest() {
-  const v  = diceBody.velocity;
-  const av = diceBody.angularVelocity;
-  const spd    = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-  const angSpd = Math.sqrt(av.x*av.x + av.y*av.y + av.z*av.z);
+  // ریست سریع بدون transition
+  die.style.transition = 'none';
+  die.style.transform = `rotateX(${curRx + (Math.random()*20-10)}deg) rotateY(${curRy + (Math.random()*20-10)}deg)`;
+  die.offsetHeight; // force reflow
 
-  if (spd < 0.5 && angSpd < 0.5) {
-    // Die has settled
-    isRolling = false;
-    const lbl = document.getElementById('rollLabel');
+  // انیمیشن به هدف
+  die.style.transition = 'transform 1.2s cubic-bezier(.25,.05,.2,1)';
+  die.style.transform  = `rotateX(${targetRx}deg) rotateY(${targetRy}deg)`;
+  curRx = targetRx;
+  curRy = targetRy;
+
+  setTimeout(() => {
+    rolling = false;
     lbl.textContent = 'دوباره بنداز ↑';
     lbl.classList.remove('rolling');
-
-    const raw   = getTopFaceValue();
-    const final = resolveRoll(raw);
-    if (final !== 1) usedNums.add(final);
-    handleRollResult(final);
-  } else {
-    // Check again in 200ms
-    checkTimer = setTimeout(checkForRest, 200);
-  }
+    if (final !== 1) used.add(final);
+    handleResult(final);
+  }, 1250);
 }
 
-/* ─── Roll uniqueness ─── */
 function resolveRoll(raw) {
   if (raw === 1) return 1;
-  if (usedNums.size >= 5) return 1;         // all categories seen, show fact
-  if (usedNums.has(raw)) {
-    const unused = [2,3,4,5,6].filter(n => !usedNums.has(n));
-    return unused[Math.floor(Math.random() * unused.length)];
+  if (used.size >= 5) return 1;
+  if (used.has(raw)) {
+    const avail = [2,3,4,5,6].filter(n => !used.has(n));
+    return avail[Math.floor(Math.random()*avail.length)];
   }
   return raw;
 }
 
-/* ─── Animation loop ─── */
-let prevT = performance.now();
-(function loop() {
-  requestAnimationFrame(loop);
-  const now = performance.now();
-  const dt  = Math.min((now - prevT) / 1000, 0.05);
-  prevT = now;
-
-  world.step(1/60, dt, 3);
-
-  if (diceMesh && diceBody) {
-    diceMesh.position.copy(diceBody.position);
-    diceMesh.quaternion.set(
-      diceBody.quaternion.x, diceBody.quaternion.y,
-      diceBody.quaternion.z, diceBody.quaternion.w
-    );
-    // Rescue if fallen off
-    if (diceBody.position.y < -4) {
-      diceBody.position.set(0, 3, 0);
-      diceBody.velocity.setZero();
-      diceBody.angularVelocity.setZero();
-    }
-  }
-  renderer.render(scene, camera);
-})();
-
-/* ─── Input ─── */
-canvas.addEventListener('click', throwDice);
-canvas.addEventListener('touchstart', e => { dragStartY = e.touches[0].clientY; }, { passive:true });
-canvas.addEventListener('touchend',   e => {
-  const dy = Math.abs(e.changedTouches[0].clientY - dragStartY);
-  if (dy < 30) throwDice();   // tap; swipe handled by page scroll
-}, { passive:true });
+// Input
+document.getElementById('dieWrap').addEventListener('click', roll);
+document.getElementById('dieWrap').addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') roll(); });
 
 // ══════════════════════════════════════════════════════
-// HANDLE ROLL RESULT
+// HANDLE RESULT
 // ══════════════════════════════════════════════════════
-function handleRollResult(n) {
+function handleResult(n) {
   if (n === 1) showFact();
-  else         showCategory(n - 2); // 2→0, 3→1, 4→2, 5→3, 6→4
-}
-
-// ══════════════════════════════════════════════════════
-// CANVAS PLACEHOLDER IMAGE
-// ══════════════════════════════════════════════════════
-function drawPlaceholder(cv, colors) {
-  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
-  const g = ctx.createLinearGradient(0,0,W,H);
-  g.addColorStop(0, colors[0]);
-  g.addColorStop(0.55, colors[1]);
-  g.addColorStop(1, colors[2]);
-  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  ctx.globalAlpha = 0.08;
-  for (let i=0; i<50; i++) {
-    const x=Math.random()*W, y=Math.random()*H, r=Math.random()*38+8;
-    const rg=ctx.createRadialGradient(x,y,0,x,y,r);
-    rg.addColorStop(0,'#fff'); rg.addColorStop(1,'transparent');
-    ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-  }
-  ctx.globalAlpha = 1;
+  else showCat(n - 2); // 2→0, 3→1, 4→2, 5→3, 6→4
 }
 
 // ══════════════════════════════════════════════════════
 // SHOW CATEGORY
 // ══════════════════════════════════════════════════════
-function showCategory(idx) {
-  const cat  = CATEGORIES[idx];
-  const card = document.getElementById('resultCard');
+function showCat(idx) {
+  const cat  = CATS[idx];
+  const card = document.getElementById('card');
+
   card.className = 'result-card';
-  card.style.display = 'none'; card.style.opacity = '0'; card.style.transform = 'translateY(16px) scale(0.98)';
+  card.style.display = 'none';
   card.innerHTML = `
-    <div class="card-hero">
-      <canvas width="480" height="160" id="heroC${idx}"></canvas>
-      <div class="card-hero-grad"></div>
-      <div class="card-hero-content">
+    <div class="hero">
+      <img class="hero-img" src="${cat.img}" alt="${cat.title}" onerror="this.style.background='${cat.color}20'">
+      <div class="hero-grad"></div>
+      <div class="hero-content">
         <div class="card-tag">${cat.icon} ${cat.label}</div>
-        <div class="card-hero-title">${cat.title}</div>
+        <div class="hero-title">${cat.title}</div>
       </div>
     </div>
-    <div class="card-body-wrap">
-      <div class="card-body-text">${cat.body}</div>
+    <div class="card-body">
+      <div class="card-desc">${cat.body}</div>
       <div class="card-items">${cat.items.map(i=>`<div class="card-item">${i}</div>`).join('')}</div>
     </div>
   `;
+
   requestAnimationFrame(() => {
     card.style.display = 'block';
-    requestAnimationFrame(() => {
-      card.classList.add('visible');
-      const hc = document.getElementById(`heroC${idx}`);
-      if (hc) drawPlaceholder(hc, cat.imgColors);
-    });
+    requestAnimationFrame(() => card.classList.add('show'));
   });
-  setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 120);
+  setTimeout(() => card.scrollIntoView({behavior:'smooth',block:'nearest'}), 120);
 
-  seenCats.add(cat.id);
-  updateProgress();
+  seen.add(cat.id);
+  updateProg();
   updateChips();
 
-  if (seenCats.size === 5 && !quizDone) {
-    // Auto-open modal after short delay to let progress bar animate
-    setTimeout(openQuizModal, 1200);
+  if (seen.size === 5 && !quizDone) {
+    setTimeout(openModal, 1300);
   }
 }
 
 // ══════════════════════════════════════════════════════
-// SHOW FACT  (dice = 1)
+// SHOW FACT
 // ══════════════════════════════════════════════════════
 function showFact() {
   let idx;
-  do { idx = Math.floor(Math.random() * FACTS.length); } while (idx === lastFact && FACTS.length > 1);
+  do { idx = Math.floor(Math.random() * FACTS.length); }
+  while (idx === lastFact && FACTS.length > 1);
   lastFact = idx;
 
-  const card = document.getElementById('resultCard');
-  card.className = 'result-card fact-card';
-  card.style.display = 'none'; card.style.opacity = '0'; card.style.transform = 'translateY(16px) scale(0.98)';
+  const card = document.getElementById('card');
+  card.className = 'result-card fact';
+  card.style.display = 'none';
   card.innerHTML = `
-    <div class="card-body-wrap">
-      <div class="fact-eyebrow">✦ یه چیز درباره من</div>
-      <div class="fact-text">${FACTS[idx]}</div>
+    <div class="fact-body">
+      <div class="fact-eye">✦ یه چیز درباره من</div>
+      <div class="fact-txt">${FACTS[idx]}</div>
     </div>
   `;
   requestAnimationFrame(() => {
     card.style.display = 'block';
-    requestAnimationFrame(() => card.classList.add('visible'));
+    requestAnimationFrame(() => card.classList.add('show'));
   });
-  setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 120);
+  setTimeout(() => card.scrollIntoView({behavior:'smooth',block:'nearest'}), 120);
 }
 
 // ══════════════════════════════════════════════════════
 // PROGRESS
 // ══════════════════════════════════════════════════════
-function updateProgress() {
-  const n = seenCats.size;
-  document.getElementById('progressFill').style.width = (n / 5 * 100) + '%';
-  document.getElementById('progressCount').textContent = toF(n) + ' / ۵';
+function updateProg() {
+  const n = seen.size;
+  document.getElementById('pFill').style.width = (n/5*100) + '%';
+  document.getElementById('pNum').textContent  = toF(n) + ' / ۵';
 }
 
 // ══════════════════════════════════════════════════════
-// LEGEND CHIPS
+// LEGEND
 // ══════════════════════════════════════════════════════
-const legendEl = document.getElementById('legend');
-CATEGORIES.forEach((cat, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'legend-chip';
-  btn.id = `chip-${cat.id}`;
-  btn.innerHTML = `<span class="chip-dot" style="background:${cat.color}"></span>${cat.label}<span class="chip-check" id="chk-${cat.id}">✓</span>`;
-  btn.addEventListener('click', () => showCategory(i));
-  legendEl.appendChild(btn);
+const legEl = document.getElementById('legend');
+CATS.forEach((cat, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.id = `chip-${cat.id}`;
+  b.innerHTML = `<span class="chip-dot" style="background:${cat.color}"></span>${cat.label}<span class="chip-ok" id="ok-${cat.id}">✓</span>`;
+  b.addEventListener('click', () => showCat(i));
+  legEl.appendChild(b);
 });
 
 function updateChips() {
-  CATEGORIES.forEach(c => {
-    const el = document.getElementById(`chk-${c.id}`);
-    if (el && seenCats.has(c.id)) el.classList.add('seen');
+  CATS.forEach(c => {
+    const el = document.getElementById(`ok-${c.id}`);
+    if (el && seen.has(c.id)) el.classList.add('on');
   });
 }
 
 // ══════════════════════════════════════════════════════
-// HOLLAND QUIZ MODAL
+// MODAL / QUIZ
 // ══════════════════════════════════════════════════════
-const hollandEl  = document.getElementById('hollandOptions');
-const submitBtn  = document.getElementById('modalSubmit');
-const feedbackEl = document.getElementById('modalFeedback');
-const prizeEl    = document.getElementById('prizeWrap');
+const hGrid  = document.getElementById('hGrid');
+const mBtn   = document.getElementById('mBtn');
+const mFb    = document.getElementById('mFb');
+const prizeEl= document.getElementById('prize');
 
 HOLLAND.forEach(h => {
-  const btn = document.createElement('button');
-  btn.className = 'h-option'; btn.dataset.id = h.id;
-  btn.innerHTML = `<div class="h-option-icon">${h.icon}</div><div class="h-option-label">${h.label}</div><div class="h-option-en">${h.en}</div>`;
-  btn.addEventListener('click', () => {
+  const b = document.createElement('button');
+  b.className = 'h-opt'; b.dataset.id = h.id;
+  b.innerHTML = `<div class="h-icon">${h.icon}</div><div class="h-lbl">${h.label}</div><div class="h-en">${h.en}</div>`;
+  b.addEventListener('click', () => {
     if (quizDone) return;
-    if (selectedH.has(h.id)) {
-      selectedH.delete(h.id); btn.classList.remove('selected');
-    } else if (selectedH.size < 3) {
-      selectedH.add(h.id); btn.classList.add('selected');
-    }
-    submitBtn.disabled = selectedH.size !== 3;
+    if (selH.has(h.id)) { selH.delete(h.id); b.classList.remove('sel'); }
+    else if (selH.size < 3) { selH.add(h.id); b.classList.add('sel'); }
+    mBtn.disabled = selH.size !== 3;
   });
-  hollandEl.appendChild(btn);
+  hGrid.appendChild(b);
 });
 
-submitBtn.addEventListener('click', () => {
-  quizTries++;
-  const isCorrect = selectedH.size === 3 && [...CORRECT_IDS].every(id => selectedH.has(id));
-  if (isCorrect) {
+mBtn.addEventListener('click', () => {
+  tries++;
+  const correct = selH.size===3 && [...CORRECT].every(id=>selH.has(id));
+  if (correct) {
     quizDone = true;
-    document.querySelectorAll('.h-option').forEach(b => {
-      const correct = CORRECT_IDS.has(b.dataset.id);
-      b.classList.add(correct ? 'correct' : 'wrong');
+    document.querySelectorAll('.h-opt').forEach(b => {
+      b.classList.add(CORRECT.has(b.dataset.id) ? 'ok' : 'no');
       b.style.pointerEvents = 'none';
     });
-    submitBtn.disabled = true;
-    feedbackEl.textContent = '';
+    mBtn.disabled = true; mFb.textContent = '';
     prizeEl.classList.add('show');
-    document.getElementById('triesBadge').textContent =
-      quizTries === 1 ? 'از اول درست جواب دادی 🎯' : `در ${toF(quizTries)} تلاش به جواب رسیدی`;
+    document.getElementById('tries').textContent =
+      tries===1 ? 'از اول درست جواب دادی 🎯' : `در ${toF(tries)} تلاش به جواب رسیدی`;
   } else {
-    // Remove wrong picks, keep correct ones
-    [...selectedH].forEach(id => { if (!CORRECT_IDS.has(id)) selectedH.delete(id); });
-    document.querySelectorAll('.h-option').forEach(b => {
-      b.classList.remove('selected');
-      if (selectedH.has(b.dataset.id)) b.classList.add('selected');
+    [...selH].forEach(id => { if(!CORRECT.has(id)) selH.delete(id); });
+    document.querySelectorAll('.h-opt').forEach(b => {
+      b.classList.remove('sel');
+      if (selH.has(b.dataset.id)) b.classList.add('sel');
     });
-    submitBtn.disabled = true;
-    feedbackEl.className = 'modal-feedback wrong-msg';
-    feedbackEl.textContent = `نه دقیقاً — دوباره امتحان کن (تلاش ${toF(quizTries)})`;
+    mBtn.disabled = true;
+    mFb.className = 'modal-fb err';
+    mFb.textContent = `نه دقیقاً — دوباره امتحان کن (تلاش ${toF(tries)})`;
   }
 });
 
-function openQuizModal() {
-  document.getElementById('modalOverlay').classList.add('open');
+function openModal() {
+  document.getElementById('mOv').classList.add('open');
 }
 
-// Close modal on backdrop click
-document.getElementById('modalOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('modalOverlay') && !quizDone)
-    document.getElementById('modalOverlay').classList.remove('open');
+// Close on backdrop
+document.getElementById('mOv').addEventListener('click', e => {
+  if (e.target===document.getElementById('mOv') && !quizDone)
+    document.getElementById('mOv').classList.remove('open');
 });
 </script>
 </body>
