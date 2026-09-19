@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>محمد — گیمیفیکیشن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+<style>
+:root {
+  --bg: #F2EDE6;
+  --bg2: #E5DDD3;
+  --surface: #FFFFFF;
+  --text: #1E1710;
+  --text2: #5A4A38;
+  --text3: #9A8878;
+  --border: #D0C4B4;
+  --shadow: rgba(30,23,16,0.13);
+  --cat1: #3D8C6E;
+  --cat2: #6B4FA8;
+  --cat3: #D4722A;
+  --cat4: #2E7AB8;
+  --cat5: #B84040;
+  --outline: #725349;
+  --radius: 20px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141008; --bg2: #1C1610; --surface: #231D14;
+    --text: #F2E8DA; --text2: #B0987E; --text3: #6A5848;
+    --border: #302618; --shadow: rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141008; --bg2: #1C1610; --surface: #231D14;
+  --text: #F2E8DA; --text2: #B0987E; --text3: #6A5848;
+  --border: #302618; --shadow: rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  min-height: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════
+   INTRO OVERLAY
+═══════════════════════════════════ */
+.intro-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+.intro-overlay.hidden { opacity: 0; pointer-events: none; }
+.intro-icon { font-size: 56px; margin-bottom: 22px; line-height: 1; }
+.intro-title {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(22px, 6vw, 34px);
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.25;
+}
+.intro-body {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.9;
+  max-width: 320px;
+  margin: 0 auto 32px;
+}
+.intro-body strong { color: var(--text); }
+.intro-start-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 16px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 40px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.intro-start-btn:active { opacity: 0.8; transform: scale(0.97); }
+
+/* ═══════════════════════════════════
+   PAGE LAYOUT
+═══════════════════════════════════ */
+.page-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+/* ═══════════════════════════════════
+   HEADER
+═══════════════════════════════════ */
+.header { text-align: center; margin-bottom: 28px; }
+.header-eyebrow {
+  font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 10px; font-weight: 500;
+}
+.header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(28px, 8vw, 42px);
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.header-sub {
+  font-size: 13px; color: var(--text2);
+  line-height: 1.75; max-width: 300px; margin: 0 auto;
+}
+
+/* ═══════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════ */
+.progress-wrap {
+  margin-bottom: 24px;
+  background: var(--bg2);
+  border-radius: 50px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-label {
+  font-size: 11px; color: var(--text3);
+  white-space: nowrap; font-weight: 500;
+  flex-shrink: 0;
+}
+.progress-bar-bg {
+  flex: 1; height: 7px;
+  background: var(--border);
+  border-radius: 4px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--cat1), var(--cat4));
+  transition: width 0.6s cubic-bezier(0.34,1.4,0.64,1);
+  width: 0%;
+}
+.progress-count {
+  font-size: 13px; color: var(--text); font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════
+   DICE SECTION
+═══════════════════════════════════ */
+.dice-section {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  margin-bottom: 24px;
+}
+.dice-hint {
+  font-size: 12px; color: var(--text3);
+  letter-spacing: 0.03em;
+}
+#diceCanvas {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: block;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+}
+.dice-roll-label {
+  font-size: 11px; color: var(--text3);
+  min-height: 16px; transition: opacity 0.3s;
+}
+.dice-roll-label.rolling { opacity: 0.4; }
+
+/* ═══════════════════════════════════
+   RESULT CARD
+═══════════════════════════════════ */
+.result-area {
+  min-height: 20px;
+  margin-bottom: 24px;
+}
+.result-card {
+  width: 100%;
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 4px 28px var(--shadow);
+  border: 1px solid var(--border);
+  opacity: 0; transform: translateY(16px) scale(0.98);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  display: none;
+}
+.result-card.visible {
+  display: block; opacity: 1; transform: none;
+}
+
+/* Category card hero */
+.card-hero { position: relative; height: 160px; overflow: hidden; }
+.card-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.card-hero-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(0,0,0,0.15) 30%,
+    rgba(0,0,0,0.6) 65%,
+    rgba(0,0,0,0.85) 100%);
+}
+.card-hero-content {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px 16px;
+  align-items: flex-end;
+}
+.card-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;
+  color: #fff; background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.card-hero-title {
+  font-size: 15px; font-weight: 700; color: #fff;
+  line-height: 1.35; text-align: right;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  max-width: 220px;
+}
+.card-body-wrap { background: var(--surface); padding: 14px 16px 18px; }
+.card-body-text { font-size: 13px; color: var(--text2); line-height: 1.75; margin-bottom: 10px; }
+.card-items { display: flex; flex-direction: column; gap: 7px; }
+.card-item {
+  font-size: 12.5px; color: var(--text2);
+  padding-right: 14px; position: relative; line-height: 1.65;
+}
+.card-item::before {
+  content: '›'; position: absolute; right: 0;
+  color: var(--text3); font-size: 15px; line-height: 1.4;
+}
+
+/* Fact card */
+.result-card.fact-card {
+  background: var(--text);
+  border-color: transparent;
+}
+.fact-card .card-body-wrap {
+  background: var(--text);
+  padding: 24px 22px 28px;
+}
+.fact-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.38); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.fact-text {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 21px; color: #fff;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════
+   LEGEND CHIPS
+═══════════════════════════════════ */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin-bottom: 32px;
+}
+.legend-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; padding: 6px 13px; border-radius: 50px;
+  border: 1.5px solid var(--border); color: var(--text2);
+  background: transparent; font-family: 'Vazirmatn', sans-serif;
+  cursor: pointer; transition: background 0.18s, border-color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.legend-chip:hover { background: var(--bg2); }
+.legend-chip.seen-chip { border-color: currentColor; opacity: 0.7; }
+.chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.chip-check { font-size: 10px; opacity: 0; transition: opacity 0.25s; color: #3D8C6E; }
+.chip-check.seen { opacity: 1; }
+
+/* ═══════════════════════════════════
+   ABOUT
+═══════════════════════════════════ */
+.about {
+  border-top: 1px solid var(--border);
+  padding-top: 28px; text-align: center;
+}
+.about-eyebrow {
+  font-size: 10px; letter-spacing: 0.15em; color: var(--text3);
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.about-text {
+  font-size: 13px; color: var(--text2);
+  line-height: 1.85; max-width: 340px; margin: 0 auto;
+}
+
+/* ═══════════════════════════════════
+   MODAL
+═══════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 24px 20px 52px;
+  width: 100%; max-width: 500px;
+  transform: translateY(40px);
+  transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+  direction: rtl;
+  max-height: 92vh; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-handle {
+  width: 40px; height: 4px;
+  background: var(--border); border-radius: 2px;
+  margin: 0 auto 24px;
+}
+.modal-emoji { font-size: 38px; text-align: center; margin-bottom: 12px; }
+.modal-title {
+  font-size: 18px; font-weight: 700; color: var(--text);
+  margin-bottom: 8px; text-align: center; line-height: 1.4;
+}
+.modal-sub {
+  font-size: 13px; color: var(--text2);
+  text-align: center; line-height: 1.7;
+  margin-bottom: 24px;
+}
+.holland-options {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 20px;
+}
+.h-option {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 14px; padding: 14px 10px;
+  text-align: center; cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  font-family: 'Vazirmatn', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.h-option:active { transform: scale(0.96); }
+.h-option.selected { border-color: var(--text); background: var(--bg2); }
+.h-option.correct { border-color: #3D8C6E !important; background: rgba(61,140,110,0.12) !important; }
+.h-option.wrong { border-color: #B84040 !important; background: rgba(184,64,64,0.08) !important; opacity: 0.5; }
+.h-option-icon { font-size: 22px; margin-bottom: 6px; }
+.h-option-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.h-option-en { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.modal-submit {
+  width: 100%; background: var(--text); color: var(--bg);
+  border: none; border-radius: 14px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 15px; font-weight: 700; padding: 15px;
+  cursor: pointer; transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.modal-submit:disabled { opacity: 0.25; cursor: not-allowed; }
+.modal-submit:not(:disabled):active { opacity: 0.8; }
+.modal-feedback {
+  text-align: center; margin-top: 14px;
+  font-size: 13.5px; color: var(--text2);
+  line-height: 1.6; min-height: 20px;
+}
+.modal-feedback.wrong-msg { color: #B84040; font-weight: 600; }
+.modal-feedback.right-msg { color: #3D8C6E; font-weight: 600; }
+.prize-wrap {
+  text-align: center; margin-top: 20px;
+  padding: 20px 16px; background: var(--bg2);
+  border-radius: 18px; display: none;
+}
+.prize-wrap.show { display: block; animation: fadeUp 0.4s ease; }
+.prize-emoji { font-size: 38px; margin-bottom: 9px; }
+.prize-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.prize-sub { font-size: 12.5px; color: var(--text2); margin-bottom: 15px; line-height: 1.7; }
+.prize-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--text); color: var(--bg);
+  padding: 12px 24px; border-radius: 13px;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none; transition: opacity 0.15s;
+}
+.prize-link:active { opacity: 0.8; }
+.tries-badge {
+  display: block; margin-top: 10px;
+  font-size: 11.5px; color: var(--text3);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-card, .modal, .modal-overlay,
+  .progress-bar-fill { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ INTRO OVERLAY ══ -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-icon">🎲</div>
+  <div class="intro-title">خوش اومدی به پورتفولیوی من</div>
+  <p class="intro-body">
+    اینجا یه <strong>بازی کوچیک</strong> داریم.<br>
+    تاس بنداز — هر عدد یه بخش از کارهامه.<br>
+    تا همه ۵ بخش رو ببینی، یه سوال دارم باهات.<br>
+    اگه درست جواب دادی، <strong>یه جایزه سورپرایز</strong> داری 🎁
+  </p>
+  <button class="intro-start-btn" id="introStartBtn">بریم ←</button>
+</div>
+
+<!-- ══ MAIN PAGE ══ -->
+<div class="page-wrap">
+
+  <div class="header">
+    <div class="header-eyebrow">Portfolio</div>
+    <h1>Gamification Works</h1>
+    <p class="header-sub">بیشتر این کارها رو بدون اینکه بدونم دارم گیمیفای می‌کنم، انجام دادم</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <span class="progress-label">پیشرفت</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-count" id="progressCount">۰ / ۵</span>
+  </div>
+
+  <!-- Dice -->
+  <div class="dice-section">
+    <div class="dice-hint">روی تاس کلیک کن یا بکشش</div>
+    <canvas id="diceCanvas" aria-label="تاس سه‌بعدی — کلیک کن برای پرتاب"></canvas>
+    <div class="dice-roll-label" id="rollLabel">منتظر پرتابم 🎲</div>
+  </div>
+
+  <!-- Result card area -->
+  <div class="result-area">
+    <div class="result-card" id="resultCard"></div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legend"></div>
+
+  <!-- About -->
+  <div class="about">
+    <div class="about-eyebrow">درباره</div>
+    <p class="about-text">پژوهشگر کاربر و طراح تجربه با پس‌زمینه ۱۲ ساله برنامه‌نویسی و تخصص در روان‌درمانی. علاقه‌ام به رفتار انسانی باعث شده همیشه به دنبال راهی باشم که یادگیری و تغییر رو لذت‌بخش‌تر کنم.</p>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- ══ HOLLAND MODAL ══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-emoji">🧠</div>
+    <div class="modal-title">همه ۵ بخش رو دیدی!</div>
+    <p class="modal-sub">حالا یه سوال دارم 🎁<br>شخصیت من بر اساس تئوری هالند چیه؟<br>از ۶ تیپ، <strong>۳ تا</strong> که فکر می‌کنی مربوط به منه انتخاب کن</p>
+    <div class="holland-options" id="hollandOptions"></div>
+    <button class="modal-submit" id="modalSubmit" disabled>ثبت جواب</button>
+    <div class="modal-feedback" id="modalFeedback"></div>
+    <div class="prize-wrap" id="prizeWrap">
+      <div class="prize-emoji">🎁</div>
+      <div class="prize-title">آفرین! درست بود</div>
+      <p class="prize-sub">هنری + جستجوگر + اجتماعی — دقیقاً همونیه که هستم<br>یه هدیه برات گذاشتم</p>
+      <a href="https://taaghche.com" target="_blank" rel="noopener" class="prize-link">دریافت هدیه ←</a>
+      <span class="tries-badge" id="triesBadge"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+const CATEGORIES = [
+  {
+    id:'workshop', label:'کارگاه / ایونت', color:'#3D8C6E', icon:'🎲',
+    title:'گیمیفیکیشن کارگاه و ایونت',
+    body:'بازی‌های گروهی برای تقویت روابط خانوادگی و توسعه مهارت‌های اجتماعی:',
+    imgColors:['#2D6E54','#1A4A38','#3D8C6E'],
+    items:[
+      'بازی ۳ مرحله‌ای پدر-پسر و مادر-دختر کارکنان فولاد بر مبنای شفقت‌درمانی — شامل نامه‌نگاری با الگوی خاص',
+      'تغییر قانون بردگیم‌ها: «همه می‌برن یا همه می‌بازن» — تقویت همکاری به جای رقابت',
+      'تبدیل تئوری هالند از پرسشنامه به کاوش کتاب و فیلم — نتیجه: رنگ شخصیت و مسیر شغلی',
+    ]
+  },
+  {
+    id:'personality', label:'شخصیت‌شناسی', color:'#6B4FA8', icon:'🪞',
+    title:'گیمیفیکیشن شخصیت‌شناسی',
+    body:'ابزارهای سنجش شخصیت که احساس بازی دارن، نه آزمون:',
+    imgColors:['#4A2E88','#2A1060','#7B5EC8'],
+    items:[
+      'بازطراحی SWAP با مکانیک سوایپ کارت — الگو از تیندر، برای پاسخ‌دهی ناهشیار',
+      'طرح آینه: پیام ناشناس + امتیازدهی — شناخت شخصیت از طریق بازتاب دیگران',
+    ]
+  },
+  {
+    id:'sales', label:'فروش / ثبت‌نام', color:'#D4722A', icon:'📬',
+    title:'گیمیفیکیشن فروش و ثبت‌نام',
+    body:'وقتی تبلیغ مستقیم نمی‌خواستم، بازی جاش رو گرفت:',
+    imgColors:['#A84E10','#7A3000','#D4822A'],
+    items:[
+      'دعوت‌نامه محدود گروه درمانی — فرم چاپی، هر نفر فقط ۱-۲ نفر معرفی می‌کرد',
+      'تکمیل چرخه زیزا — کاربر «محصول واقعی» تولید می‌کرد، جدول زمانی تیک می‌زد',
+    ]
+  },
+  {
+    id:'edu', label:'آموزش آکادمیک', color:'#2E7AB8', icon:'🏆',
+    title:'گیمیفیکیشن آموزش آکادمیک',
+    body:'کلاس برنامه‌نویسی که بیشتر شبیه مسابقه بود:',
+    imgColors:['#1A5A98','#0E3A70','#3E8AC8'],
+    items:[
+      'نرم‌افزار تحت‌شبکه با اسکوربورد زنده — مسابقه تایپ و برنامه‌نویسی روی کوئرا',
+      'اپ سوال-جواب ۳ ثانیه‌ای سر کلاس — اسکوربورد لحظه‌ای برای همه',
+      'امتیازدهی به کیفیت کد + سرعت تایپ — دو متر متفاوت، یه نمره',
+    ]
+  },
+  {
+    id:'skill', label:'توسعه مهارت سریالی', color:'#B84040', icon:'🗺️',
+    title:'گیمیفیکیشن توسعه مهارت — سریالی',
+    body:'بازی سرزمینی برای کارآفرینی — چند جلسه‌ای و تیمی:',
+    imgColors:['#902020','#600800','#C85050'],
+    items:[
+      'هر تیم تسک انجام می‌داد ← سکه می‌گرفت ← قلمرو بزرگ‌تر می‌شد',
+      'برنده: قلمرو بزرگ‌تر + سکه بیشتر — مذاکره، حل مسئله، کارتیمی',
+      'فرمت سریالی — هر جلسه یه فصل با روایت ادامه‌دار',
+    ]
+  },
+];
+
+const FACTS = [
+  'یه بار از دانشگاه بورسیه صداوسیما انصراف دادم.',
+  '۱۲ سال برنامه‌نویسی کردم، بعد رفتم سمت روان‌درمانی — ولی هنوزم کد می‌زنم.',
+  'رتبه اول رشته مشاوره شدم در لیسانس — ۱۰ سال از هم‌کلاسی‌هام بزرگ‌تر بودم.',
+  'استعداد درخشان دانشگاه تهران (علوم شناختی) و اصفهان (مشاوره) — مجبور شدم یکیشو انصراف بدم.',
+  'رتبه کنکور انسانیم بهتر از رتبه کنکور ریاضیمه — با اینکه رشتم انسانی نبود.',
+  'هیچ‌وقت حوصله بازی با کامپیوتر نداشتم — ولی خراب کردنش چرا.',
+  '۱۱ تا ساعت مچی باز کردم توی بچگی ببینم چطوری کار می‌کنن.',
+  'نقاشی توی استان اول شدم — توی پیش‌دبستانی.',
+  'توی پیش‌دانشگاهی که همه کنکور می‌خوندن، داشتم سعی می‌کردم نظریه ۴ رنگ رو اثبات کنم. کسی نتونست ردش کنه.',
+  '۱۱ سال با پایتون کد زدم، ولی پروژه خودمو با Node.js زدم.',
+];
+
+const HOLLAND = [
+  {id:'R', label:'واقع‌گرا',  en:'Realistic',     icon:'🔧'},
+  {id:'I', label:'جستجوگر',  en:'Investigative', icon:'🔬'},
+  {id:'A', label:'هنری',      en:'Artistic',      icon:'🎨'},
+  {id:'S', label:'اجتماعی',  en:'Social',        icon:'🤝'},
+  {id:'E', label:'کارآفرین', en:'Enterprising',  icon:'🚀'},
+  {id:'C', label:'قراردادی', en:'Conventional',  icon:'📋'},
+];
+const CORRECT_IDS = new Set(['I','A','S']);
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let seenCats     = new Set();
+let quizDone     = false;
+let quizTries    = 0;
+let selectedH    = new Set();
+let lastFact     = -1;
+let usedNums     = new Set(); // 2–6 used once each
+
+// ══════════════════════════════════════════════════════
+// FARSI NUMBERS
+// ══════════════════════════════════════════════════════
+const toF = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+// ══════════════════════════════════════════════════════
+// INTRO
+// ══════════════════════════════════════════════════════
+document.getElementById('introStartBtn').addEventListener('click', () => {
+  const ov = document.getElementById('introOverlay');
+  ov.classList.add('hidden');
+  setTimeout(() => { ov.style.display = 'none'; }, 600);
+});
+
+// ══════════════════════════════════════════════════════
+// THREE.JS + CANNON.JS DICE
+// ══════════════════════════════════════════════════════
+
+/* ─── Renderer ─── */
+const canvas = document.getElementById('diceCanvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = false;
+
+/* ─── Scene + Camera ─── */
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 2, 0.1, 100);
+camera.position.set(0, 5.5, 9);
+camera.lookAt(0, 0, 0);
+
+/* ─── Lights ─── */
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+sun.position.set(5, 10, 7);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0xffe0b0, 0.35);
+rim.position.set(-5, 4, -5);
+scene.add(rim);
+
+/* ─── Physics ─── */
+const world = new CANNON.World();
+world.gravity.set(0, -28, 0);
+world.broadphase = new CANNON.NaiveBroadphase();
+world.solver.iterations = 16;
+
+const matGround = new CANNON.Material('ground');
+const matDice   = new CANNON.Material('dice');
+world.addContactMaterial(new CANNON.ContactMaterial(matGround, matDice, {
+  friction: 0.4, restitution: 0.38
+}));
+
+/* ground plane */
+const ground = new CANNON.Body({ mass: 0, material: matGround });
+ground.addShape(new CANNON.Plane());
+ground.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+world.addBody(ground);
+
+/* ─── Dice textures ───
+   CRITICAL mapping:
+   Three.js BoxGeometry material slots:
+     slot 0 = +X face (right)
+     slot 1 = -X face (left)
+     slot 2 = +Y face (top)
+     slot 3 = -Y face (bottom)
+     slot 4 = +Z face (front)
+     slot 5 = -Z face (back)
+
+   We encode the die value directly in a `userData` on each material
+   so getDiceValue() reads it without any face-normal math.
+   Layout (standard die, opposite faces sum to 7):
+     top=1, bottom=6   → slot2=1, slot3=6
+     front=2, back=5   → slot4=2, slot5=5
+     right=3, left=4   → slot0=3, slot1=4
+*/
+const FACE_VALUES = [3, 4, 1, 6, 2, 5]; // slots 0-5
+
+const DICE_COLORS = ['#E05A47','#EAA14D','#4D9BEA','#5FB376','#D869A8','#9B51E0'];
+const DOT_CLR = '#FFFFFF';
+
+function makeDotTexture(value, bgHex) {
+  const S = 256, cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const ctx = cv.getContext('2d');
+  // fill
+  ctx.fillStyle = bgHex; ctx.fillRect(0,0,S,S);
+  // rounded corners illusion — just draw slightly inset
+  ctx.fillStyle = DOT_CLR;
+  const R = S/10, c = S/2, q1 = S/4, q3 = S*3/4;
+  const dot = (x,y) => { ctx.beginPath(); ctx.arc(x,y,R,0,Math.PI*2); ctx.fill(); };
+  switch(value) {
+    case 1: dot(c,c); break;
+    case 2: dot(q1,q1); dot(q3,q3); break;
+    case 3: dot(q1,q1); dot(c,c); dot(q3,q3); break;
+    case 4: dot(q1,q1); dot(q3,q1); dot(q1,q3); dot(q3,q3); break;
+    case 5: dot(q1,q1); dot(q3,q1); dot(c,c); dot(q1,q3); dot(q3,q3); break;
+    case 6: dot(q1,q1); dot(q3,q1); dot(q1,c); dot(q3,c); dot(q1,q3); dot(q3,q3); break;
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.userData = { faceValue: value }; // ← KEY: store value in texture
+  return tex;
+}
+
+/* ─── Die mesh + body ─── */
+let diceMesh, diceBody;
+
+function createDie() {
+  if (diceMesh) { scene.remove(diceMesh); diceMesh.geometry.dispose(); }
+  if (diceBody) world.removeBody(diceBody);
+
+  const color = DICE_COLORS[Math.floor(Math.random() * DICE_COLORS.length)];
+  const S = 2.0;
+  const geo = new THREE.BoxGeometry(S, S, S);
+
+  // Build materials in slot order, each with faceValue embedded in texture userData
+  const mats = FACE_VALUES.map(val =>
+    new THREE.MeshLambertMaterial({ map: makeDotTexture(val, color) })
+  );
+
+  diceMesh = new THREE.Mesh(geo, mats);
+  scene.add(diceMesh);
+
+  // Subtle outline
+  const outM = new THREE.MeshBasicMaterial({ color: 0x725349, side: THREE.BackSide });
+  diceMesh.add(new THREE.Mesh(new THREE.BoxGeometry(S*1.06, S*1.06, S*1.06), outM));
+
+  diceBody = new CANNON.Body({
+    mass: 1, material: matDice, linearDamping: 0.28, angularDamping: 0.38,
+    shape: new CANNON.Box(new CANNON.Vec3(S/2, S/2, S/2)),
+  });
+  diceBody.position.set(0, 2, 0);
+  world.addBody(diceBody);
+}
+createDie();
+
+/* ─── Resize ─── */
+function resizeCanvas() {
+  const r = canvas.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height;
+  camera.updateProjectionMatrix();
+}
+resizeCanvas();
+new ResizeObserver(resizeCanvas).observe(canvas);
+
+/* ─── Read top-face value from material's texture userData ─── */
+/*
+  For each of the 6 face normals in local space, rotate it by the die's quaternion
+  to get world-space direction, then dot with UP (0,1,0).
+  The face with the highest dot product is the top face.
+  Then we look up which material slot corresponds to that face.
+*/
+const LOCAL_NORMALS = [
+  new THREE.Vector3( 1, 0, 0),  // slot 0 (+X)
+  new THREE.Vector3(-1, 0, 0),  // slot 1 (-X)
+  new THREE.Vector3( 0, 1, 0),  // slot 2 (+Y)
+  new THREE.Vector3( 0,-1, 0),  // slot 3 (-Y)
+  new THREE.Vector3( 0, 0, 1),  // slot 4 (+Z)
+  new THREE.Vector3( 0, 0,-1),  // slot 5 (-Z)
+];
+const UP = new THREE.Vector3(0, 1, 0);
+
+function getTopFaceValue() {
+  let best = -Infinity, bestSlot = 2;
+  LOCAL_NORMALS.forEach((n, slot) => {
+    const worldN = n.clone().applyQuaternion(diceMesh.quaternion);
+    const d = worldN.dot(UP);
+    if (d > best) { best = d; bestSlot = slot; }
+  });
+  // Read value from the material's texture userData
+  return diceMesh.material[bestSlot].map.userData.faceValue;
+}
+
+/* ─── Roll state ─── */
+let isRolling = false;
+let checkTimer = null;
+let dragStartY = 0;
+
+function throwDice() {
+  if (isRolling) return;
+  isRolling = true;
+
+  const lbl = document.getElementById('rollLabel');
+  lbl.textContent = '🎲 در حال پرتاب...';
+  lbl.classList.add('rolling');
+
+  diceBody.position.set((Math.random()-.5)*1.2, 5.5, (Math.random()-.5)*1.2);
+  diceBody.velocity.set(
+    (Math.random()-.5)*7,
+    -9 - Math.random()*4,
+    (Math.random()-.5)*7
+  );
+  diceBody.angularVelocity.set(
+    (Math.random()-.5)*28,
+    (Math.random()-.5)*28,
+    (Math.random()-.5)*28
+  );
+  diceBody.wakeUp();
+
+  if (checkTimer) clearTimeout(checkTimer);
+  // After minimum roll time, start checking for rest
+  checkTimer = setTimeout(checkForRest, 1600);
+}
+
+function checkForRest() {
+  const v  = diceBody.velocity;
+  const av = diceBody.angularVelocity;
+  const spd    = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+  const angSpd = Math.sqrt(av.x*av.x + av.y*av.y + av.z*av.z);
+
+  if (spd < 0.5 && angSpd < 0.5) {
+    // Die has settled
+    isRolling = false;
+    const lbl = document.getElementById('rollLabel');
+    lbl.textContent = 'دوباره بنداز ↑';
+    lbl.classList.remove('rolling');
+
+    const raw   = getTopFaceValue();
+    const final = resolveRoll(raw);
+    if (final !== 1) usedNums.add(final);
+    handleRollResult(final);
+  } else {
+    // Check again in 200ms
+    checkTimer = setTimeout(checkForRest, 200);
+  }
+}
+
+/* ─── Roll uniqueness ─── */
+function resolveRoll(raw) {
+  if (raw === 1) return 1;
+  if (usedNums.size >= 5) return 1;         // all categories seen, show fact
+  if (usedNums.has(raw)) {
+    const unused = [2,3,4,5,6].filter(n => !usedNums.has(n));
+    return unused[Math.floor(Math.random() * unused.length)];
+  }
+  return raw;
+}
+
+/* ─── Animation loop ─── */
+let prevT = performance.now();
+(function loop() {
+  requestAnimationFrame(loop);
+  const now = performance.now();
+  const dt  = Math.min((now - prevT) / 1000, 0.05);
+  prevT = now;
+
+  world.step(1/60, dt, 3);
+
+  if (diceMesh && diceBody) {
+    diceMesh.position.copy(diceBody.position);
+    diceMesh.quaternion.set(
+      diceBody.quaternion.x, diceBody.quaternion.y,
+      diceBody.quaternion.z, diceBody.quaternion.w
+    );
+    // Rescue if fallen off
+    if (diceBody.position.y < -4) {
+      diceBody.position.set(0, 3, 0);
+      diceBody.velocity.setZero();
+      diceBody.angularVelocity.setZero();
+    }
+  }
+  renderer.render(scene, camera);
+})();
+
+/* ─── Input ─── */
+canvas.addEventListener('click', throwDice);
+canvas.addEventListener('touchstart', e => { dragStartY = e.touches[0].clientY; }, { passive:true });
+canvas.addEventListener('touchend',   e => {
+  const dy = Math.abs(e.changedTouches[0].clientY - dragStartY);
+  if (dy < 30) throwDice();   // tap; swipe handled by page scroll
+}, { passive:true });
+
+// ══════════════════════════════════════════════════════
+// HANDLE ROLL RESULT
+// ══════════════════════════════════════════════════════
+function handleRollResult(n) {
+  if (n === 1) showFact();
+  else         showCategory(n - 2); // 2→0, 3→1, 4→2, 5→3, 6→4
+}
+
+// ══════════════════════════════════════════════════════
+// CANVAS PLACEHOLDER IMAGE
+// ══════════════════════════════════════════════════════
+function drawPlaceholder(cv, colors) {
+  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const g = ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0, colors[0]);
+  g.addColorStop(0.55, colors[1]);
+  g.addColorStop(1, colors[2]);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha = 0.08;
+  for (let i=0; i<50; i++) {
+    const x=Math.random()*W, y=Math.random()*H, r=Math.random()*38+8;
+    const rg=ctx.createRadialGradient(x,y,0,x,y,r);
+    rg.addColorStop(0,'#fff'); rg.addColorStop(1,'transparent');
+    ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ══════════════════════════════════════════════════════
+// SHOW CATEGORY
+// ══════════════════════════════════════════════════════
+function showCategory(idx) {
+  const cat  = CATEGORIES[idx];
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card';
+  card.style.display = 'none'; card.style.opacity = '0'; card.style.transform = 'translateY(16px) scale(0.98)';
+  card.innerHTML = `
+    <div class="card-hero">
+      <canvas width="480" height="160" id="heroC${idx}"></canvas>
+      <div class="card-hero-grad"></div>
+      <div class="card-hero-content">
+        <div class="card-tag">${cat.icon} ${cat.label}</div>
+        <div class="card-hero-title">${cat.title}</div>
+      </div>
+    </div>
+    <div class="card-body-wrap">
+      <div class="card-body-text">${cat.body}</div>
+      <div class="card-items">${cat.items.map(i=>`<div class="card-item">${i}</div>`).join('')}</div>
+    </div>
+  `;
+  requestAnimationFrame(() => {
+    card.style.display = 'block';
+    requestAnimationFrame(() => {
+      card.classList.add('visible');
+      const hc = document.getElementById(`heroC${idx}`);
+      if (hc) drawPlaceholder(hc, cat.imgColors);
+    });
+  });
+  setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 120);
+
+  seenCats.add(cat.id);
+  updateProgress();
+  updateChips();
+
+  if (seenCats.size === 5 && !quizDone) {
+    // Auto-open modal after short delay to let progress bar animate
+    setTimeout(openQuizModal, 1200);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SHOW FACT  (dice = 1)
+// ══════════════════════════════════════════════════════
+function showFact() {
+  let idx;
+  do { idx = Math.floor(Math.random() * FACTS.length); } while (idx === lastFact && FACTS.length > 1);
+  lastFact = idx;
+
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card fact-card';
+  card.style.display = 'none'; card.style.opacity = '0'; card.style.transform = 'translateY(16px) scale(0.98)';
+  card.innerHTML = `
+    <div class="card-body-wrap">
+      <div class="fact-eyebrow">✦ یه چیز درباره من</div>
+      <div class="fact-text">${FACTS[idx]}</div>
+    </div>
+  `;
+  requestAnimationFrame(() => {
+    card.style.display = 'block';
+    requestAnimationFrame(() => card.classList.add('visible'));
+  });
+  setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 120);
+}
+
+// ══════════════════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════════════════
+function updateProgress() {
+  const n = seenCats.size;
+  document.getElementById('progressFill').style.width = (n / 5 * 100) + '%';
+  document.getElementById('progressCount').textContent = toF(n) + ' / ۵';
+}
+
+// ══════════════════════════════════════════════════════
+// LEGEND CHIPS
+// ══════════════════════════════════════════════════════
+const legendEl = document.getElementById('legend');
+CATEGORIES.forEach((cat, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'legend-chip';
+  btn.id = `chip-${cat.id}`;
+  btn.innerHTML = `<span class="chip-dot" style="background:${cat.color}"></span>${cat.label}<span class="chip-check" id="chk-${cat.id}">✓</span>`;
+  btn.addEventListener('click', () => showCategory(i));
+  legendEl.appendChild(btn);
+});
+
+function updateChips() {
+  CATEGORIES.forEach(c => {
+    const el = document.getElementById(`chk-${c.id}`);
+    if (el && seenCats.has(c.id)) el.classList.add('seen');
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// HOLLAND QUIZ MODAL
+// ══════════════════════════════════════════════════════
+const hollandEl  = document.getElementById('hollandOptions');
+const submitBtn  = document.getElementById('modalSubmit');
+const feedbackEl = document.getElementById('modalFeedback');
+const prizeEl    = document.getElementById('prizeWrap');
+
+HOLLAND.forEach(h => {
+  const btn = document.createElement('button');
+  btn.className = 'h-option'; btn.dataset.id = h.id;
+  btn.innerHTML = `<div class="h-option-icon">${h.icon}</div><div class="h-option-label">${h.label}</div><div class="h-option-en">${h.en}</div>`;
+  btn.addEventListener('click', () => {
+    if (quizDone) return;
+    if (selectedH.has(h.id)) {
+      selectedH.delete(h.id); btn.classList.remove('selected');
+    } else if (selectedH.size < 3) {
+      selectedH.add(h.id); btn.classList.add('selected');
+    }
+    submitBtn.disabled = selectedH.size !== 3;
+  });
+  hollandEl.appendChild(btn);
+});
+
+submitBtn.addEventListener('click', () => {
+  quizTries++;
+  const isCorrect = selectedH.size === 3 && [...CORRECT_IDS].every(id => selectedH.has(id));
+  if (isCorrect) {
+    quizDone = true;
+    document.querySelectorAll('.h-option').forEach(b => {
+      const correct = CORRECT_IDS.has(b.dataset.id);
+      b.classList.add(correct ? 'correct' : 'wrong');
+      b.style.pointerEvents = 'none';
+    });
+    submitBtn.disabled = true;
+    feedbackEl.textContent = '';
+    prizeEl.classList.add('show');
+    document.getElementById('triesBadge').textContent =
+      quizTries === 1 ? 'از اول درست جواب دادی 🎯' : `در ${toF(quizTries)} تلاش به جواب رسیدی`;
+  } else {
+    // Remove wrong picks, keep correct ones
+    [...selectedH].forEach(id => { if (!CORRECT_IDS.has(id)) selectedH.delete(id); });
+    document.querySelectorAll('.h-option').forEach(b => {
+      b.classList.remove('selected');
+      if (selectedH.has(b.dataset.id)) b.classList.add('selected');
+    });
+    submitBtn.disabled = true;
+    feedbackEl.className = 'modal-feedback wrong-msg';
+    feedbackEl.textContent = `نه دقیقاً — دوباره امتحان کن (تلاش ${toF(quizTries)})`;
+  }
+});
+
+function openQuizModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// Close modal on backdrop click
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay') && !quizDone)
+    document.getElementById('modalOverlay').classList.remove('open');
+});
+</script>
+</body>
+</html>
